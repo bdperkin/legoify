@@ -86,7 +86,15 @@ while($xoffset < ( $widthpx - 1 )) {
 	if ( $colormap{$srgbcolor} =~ m/BLACK/ || $colormap{$srgbcolor}=~ m/DARK/ || $colormap{$srgbcolor} =~ m/DK\./ ) {
 	    $stroke = "white";
 	}
-	system("convert $file.lego.png -fill \"$srgbcolor\" -stroke $stroke -strokewidth 1 -draw \"rectangle $xoffset,$yoffset $xoffsetopp,$yoffsetopp\" $file.lego.tmp.png");
+	if ( $colormap{$srgbcolor} =~ m/CLEAR/ ) {
+	    $stroke = "red";
+	}
+	my $line = "";
+	if ( $colormap{$srgbcolor} =~ m/CLEAR/ ) {
+	    $line = "-draw \"line $xoffset,$yoffset $xoffsetopp,$yoffsetopp\" -draw \"line $xoffset,$yoffsetopp $xoffsetopp,$yoffset\" ";
+	}
+	
+	system("convert $file.lego.png -fill \"$srgbcolor\" -stroke $stroke -strokewidth 1 -draw \"rectangle $xoffset,$yoffset $xoffsetopp,$yoffsetopp\" $line $file.lego.tmp.png");
 	system("mv $file.lego.tmp.png $file.lego.png");
         $yoffset = $yoffset + 32;
     }
