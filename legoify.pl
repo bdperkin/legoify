@@ -5,6 +5,10 @@ use warnings;
 
 $ENV{PATH}="/bin:/sbin:/usr/bin:/usr/sbin";
 
+#my $colormapgif = "3023_colormap.gif";
+my $colormapgif = "white_red_black.gif";
+
+
 if (@ARGV != 2) {
    die "Usage: $0 [NUM KNOBS] [SVG FILE]\n";
 }
@@ -47,7 +51,7 @@ if(system("file $file | grep 'SVG Scalable Vector Graphics image\$'")) {
 }
 
 system("inkscape $file --export-background=#FFFFFF --export-png=$file.png -w$widthpx --export-area-drawing");
-system("convert -remap 3023_colormap.gif $file.png $file.tmp.png");
+system("convert -remap $colormapgif $file.png $file.tmp.png");
 system("mv $file.tmp.png $file.png");
 system("cp $file.png $file.lego.png");
 
@@ -72,13 +76,17 @@ while($xoffset < ( $widthpx - 1 )) {
         my $geom="80x32+$xoffset+$yoffset";
         print "Plate $plate: $geom: ";
         system("convert -extract $geom $file.png $file.px");
-        my @COLOR=`convert $file.px -scale 1x1\! -remap 3023_colormap.gif -format '%[pixel:s]' info:-`;
+        my @COLOR=`convert $file.px -scale 1x1\! -remap $colormapgif -format '%[pixel:s]' info:-`;
         my $srgbcolor=$COLOR[0];
         chomp $srgbcolor;
         print $colormap{$srgbcolor} . "\n";
 	my $xoffsetopp = $xoffset + 80;
 	my $yoffsetopp = $yoffset + 32;
-	system("convert $file.lego.png -fill \"$srgbcolor\" -stroke black -strokewidth 1 -draw \"rectangle $xoffset,$yoffset $xoffsetopp,$yoffsetopp\" $file.lego.tmp.png");
+	my $stroke = "black";
+	if ( $colormap{$srgbcolor} =~ m/BLACK/ || $colormap{$srgbcolor}=~ m/DARK/ || $colormap{$srgbcolor} =~ m/DK\./ ) {
+	    $stroke = "white";
+	}
+	system("convert $file.lego.png -fill \"$srgbcolor\" -stroke $stroke -strokewidth 1 -draw \"rectangle $xoffset,$yoffset $xoffsetopp,$yoffsetopp\" $file.lego.tmp.png");
 	system("mv $file.lego.tmp.png $file.lego.png");
         $yoffset = $yoffset + 32;
     }
