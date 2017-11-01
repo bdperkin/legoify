@@ -36,3 +36,7 @@ inc/
 
 # Project Specific
 *.px
+*.svg.tmp.png
+*.pl.LOG
+*.pl.TEE
+*.pl.bak
